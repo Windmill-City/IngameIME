@@ -27,7 +27,7 @@
     <ClInclude Include="TestWnd.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\source\repos\TextServiceFramework\AppTSF_TestWindow\TextBox.h">
+    <ClInclude Include="TextBox.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,7 +35,7 @@
     <ClCompile Include="TestWnd.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\repos\TextServiceFramework\AppTSF_TestWindow\TextBox.cpp">
+    <ClCompile Include="TextBox.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

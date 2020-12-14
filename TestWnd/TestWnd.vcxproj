@@ -84,15 +84,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\source\repos\TextServiceFramework\AppTSF_TestWindow\TextBox.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TestWnd.h" />
+    <ClInclude Include="TextBox.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\source\repos\TextServiceFramework\AppTSF_TestWindow\TextBox.cpp" />
     <ClCompile Include="TestWnd.cpp" />
+    <ClCompile Include="TextBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TestWnd.rc" />
