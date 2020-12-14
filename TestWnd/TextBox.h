@@ -4,7 +4,6 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <malloc.h>
-#include <memory.h>
 #include <tchar.h>
 
 #include <msctf.h>
@@ -22,7 +21,7 @@
 
 #include <atlstr.h>
 #include <strsafe.h>
-#include <boost\smart_ptr\shared_ptr.hpp>
+#include <memory>
 class TextBox
 {
 public:
