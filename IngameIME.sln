@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IngameIME", "IngameIME\IngameIME.vcxproj", "{C5B9E671-E7ED-4274-BAF6-ADA309C1BA9C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestWnd", "TestWnd\TestWnd.vcxproj", "{A4DF622F-F130-4ABE-895A-387996540979}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C5B9E671-E7ED-4274-BAF6-ADA309C1BA9C}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5B9E671-E7ED-4274-BAF6-ADA309C1BA9C}.Debug|x86.Build.0 = Debug|Win32
+		{C5B9E671-E7ED-4274-BAF6-ADA309C1BA9C}.Release|x86.ActiveCfg = Release|Win32
+		{C5B9E671-E7ED-4274-BAF6-ADA309C1BA9C}.Release|x86.Build.0 = Release|Win32
+		{A4DF622F-F130-4ABE-895A-387996540979}.Debug|x86.ActiveCfg = Debug|Win32
+		{A4DF622F-F130-4ABE-895A-387996540979}.Debug|x86.Build.0 = Debug|Win32
+		{A4DF622F-F130-4ABE-895A-387996540979}.Release|x86.ActiveCfg = Release|Win32
+		{A4DF622F-F130-4ABE-895A-387996540979}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8C8FF659-91F5-4C40-98E7-E8914260CBA4}
+	EndGlobalSection
+EndGlobal
