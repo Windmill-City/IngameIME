@@ -12,6 +12,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{EFE0BF71-B353-4057-A884-326DB56860C6}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\CompStr.gif = Docs\CompStr.gif
+		Docs\FullSC.gif = Docs\FullSC.gif
+		Docs\IMEState.gif = Docs\IMEState.gif
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -29,6 +36,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EFE0BF71-B353-4057-A884-326DB56860C6} = {5590628A-833C-411F-903E-2CE93BC708C0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C8FF659-91F5-4C40-98E7-E8914260CBA4}
