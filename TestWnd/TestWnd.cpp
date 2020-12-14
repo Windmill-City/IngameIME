@@ -176,6 +176,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //获得屏幕尺寸
         scrWidth = GetSystemMetrics(SM_CXSCREEN);
         scrHeight = GetSystemMetrics(SM_CYSCREEN);
+        SetWindowPos(hWnd, HWND_TOP, 0, 0, 500, 450, SWP_SHOWWINDOW);
         //取得窗口尺寸
         GetWindowRect(hWnd, &rect);
         //重新设置rect里的值
