@@ -10,12 +10,13 @@ namespace IngameIME {
         std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> m_fhandleWndMsg = std::bind(&IMM::handleWndMsg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
         WNDPROC m_prevWndProc = NULL;
         HIMC m_context = NULL;
+        BOOL m_enabled = FALSE;
 
         static LRESULT handleWndMsg_CStyle(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
             return getInstance()->m_fhandleWndMsg(hwnd, msg, wparam, lparam);
         }
 
-        VOID handleComposition(LONG compFlag, LONG genrealFlag)
+        void handleComposition(LONG compFlag, LONG genrealFlag)
         {
             if (((GCS_COMPSTR | GCS_COMPATTR | GCS_COMPCLAUSE | GCS_COMPREADATTR | GCS_COMPREADCLAUSE | GCS_COMPREADSTR) & compFlag) && (m_fullscreen || m_handleCompStr))//Comp String/Sel Changed
             {
@@ -38,7 +39,7 @@ namespace IngameIME {
             }
         }
 
-        VOID posCandWnd()
+        void posCandWnd()
         {
             RECT* rect = new RECT();
             if (onGetCompExt) onGetCompExt(rect);
@@ -58,7 +59,7 @@ namespace IngameIME {
             ImmSetCompositionWindow(m_context, comp);
         }
 
-        VOID handleCandlist()
+        void handleCandlist()
         {
             size_t size = ImmGetCandidateList(m_context, 0, NULL, 0);
             LPCANDIDATELIST candlist = (LPCANDIDATELIST)new byte[size];
@@ -174,7 +175,7 @@ namespace IngameIME {
             return &_instance;
         }
 
-        VOID Initialize(HWND hWnd)
+        void Initialize(HWND hWnd)
         {
             m_hWnd = hWnd;
             m_context = ImmGetContext(hWnd);
@@ -193,7 +194,7 @@ namespace IngameIME {
             return NULL;
         }
 
-        VOID setState(BOOL enable)
+        void setState(BOOL enable)
         {
             m_enabled = enable;
             if (m_enabled)
@@ -202,9 +203,9 @@ namespace IngameIME {
                 ImmAssociateContext(m_hWnd, NULL);
         }
 
-        VOID setFullScreen(BOOL fullscreen)
+        virtual BOOL State() override
         {
-            m_fullscreen = fullscreen;
+            return m_enabled;
         }
-    };
+};
 }

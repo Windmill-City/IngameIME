@@ -90,7 +90,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     return RegisterClassExW(&wcex);
 }
 
-VOID CALLBACK CandProc(byte* candStr, DWORD* candStrLen, size_t size) {
+void CALLBACK onCandidateList(byte* candStr, DWORD* candStrLen, size_t size) {
     textBox->Count = size;
     textBox->Candidates.reset(new std::wstring[size]);
     for (size_t i = 0; i < size; i++)
@@ -101,7 +101,7 @@ VOID CALLBACK CandProc(byte* candStr, DWORD* candStrLen, size_t size) {
     }
 }
 
-VOID CALLBACK CompProc(PWCHAR pstr, BOOL state, INT caret) {
+void CALLBACK onComposition(PWCHAR pstr, BOOL state, INT caret) {
     if (state && pstr) {//Update Composition String
         textBox->m_CompText = pstr;
         textBox->m_CaretPos = caret;
@@ -114,7 +114,7 @@ VOID CALLBACK CompProc(PWCHAR pstr, BOOL state, INT caret) {
     }
 }
 
-VOID CALLBACK CompExtProc(PRECT prect) {
+void CALLBACK onGetCompExt(PRECT prect) {
     textBox->GetCompExt(prect);//Pos the CandidateList window, should return a bounding box of the composition string
 }
 
@@ -144,9 +144,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   api->setCandProc(CandProc);
-   api->setCompProc(CompProc);
-   api->setCompExtProc(CompExtProc);
+   api->onCandidateList = onCandidateList;
+   api->onComposition = onComposition;
+   api->onGetCompExt = onGetCompExt;
    api->Initialize(hWnd);
    textBox = new TextBox(hWnd);
 
@@ -226,7 +226,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (textBox) textBox->Draw(hWnd, hdc, &ps);
             //Draw State
             std::wstring IMEState = L"IMEState:";
-            IMEState += BOOLSTR(api->m_enabled);
+            IMEState += BOOLSTR(api->State());
             std::wstring FullScreen = L"FullScreen:";
             FullScreen += BOOLSTR(api->m_fullscreen);
             std::wstring HandleCompStr = L"HandleCompStr:";

@@ -11,7 +11,7 @@ IngameIME::BaseIME* api = IngameIME::IMM::getInstance();
 ```
 Set up callbacks
 ```c++
-VOID CALLBACK CandProc(byte* candStr, DWORD* candStrLen, size_t size) {
+void CALLBACK onCandidateList(byte* candStr, DWORD* candStrLen, size_t size) {
     textBox->Count = size;
     textBox->Candidates.reset(new std::wstring[size]);
     for (size_t i = 0; i < size; i++)
@@ -22,7 +22,7 @@ VOID CALLBACK CandProc(byte* candStr, DWORD* candStrLen, size_t size) {
     }
 }
 
-VOID CALLBACK CompProc(PWCHAR pstr, BOOL state, INT caret) {
+void CALLBACK onComposition(PWCHAR pstr, BOOL state, INT caret) {
     if (state && pstr) {//Update Composition String
         textBox->m_CompText = pstr;
         textBox->m_CaretPos = caret;
@@ -35,15 +35,15 @@ VOID CALLBACK CompProc(PWCHAR pstr, BOOL state, INT caret) {
     }
 }
 
-VOID CALLBACK CompExtProc(PRECT prect) {
+void CALLBACK onGetCompExt(PRECT prect) {
     textBox->GetCompExt(prect);//Pos the CandidateList window, should return a bounding box of the composition string
 }
 ```
 Register in the api
 ```c++
-   api->setCandProc(CandProc);
-   api->setCompProc(CompProc);
-   api->setCompExtProc(CompExtProc);
+   api->onCandidateList = onCandidateList;
+   api->onComposition = onComposition;
+   api->onGetCompExt = onGetCompExt;
 ```
 Then init by passing a HWND ptr
 ```c++
