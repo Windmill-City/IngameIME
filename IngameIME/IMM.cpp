@@ -189,6 +189,7 @@ namespace IngameIME {
             if (m_initialized) {
                 setState(FALSE);
                 ImmDestroyContext(m_context);
+                m_initialized = FALSE;
                 return SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG)m_prevWndProc);
             }
             return NULL;
