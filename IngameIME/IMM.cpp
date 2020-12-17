@@ -179,6 +179,7 @@ namespace IngameIME {
 		{
 			m_hWnd = hWnd;
 			m_context = ImmGetContext(hWnd);
+			if (!m_context) m_context = ImmCreateContext();
 			m_prevWndProc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG)handleWndMsg_CStyle);
 			setState(m_enabled);
 			m_initialized = TRUE;
