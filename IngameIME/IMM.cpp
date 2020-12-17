@@ -74,8 +74,8 @@ namespace IngameIME {
 				DWORD pageStart = candlist->dwPageStart;
 				DWORD pageEnd = pageStart + pageSize;
 
-				DWORD pStrStart = (DWORD)candlist + (DWORD)candlist->dwOffset[pageStart];
-				DWORD pStrEnd = (DWORD)candlist + (pageEnd < candCount ? candlist->dwOffset[pageEnd] : size);
+				LONG_PTR pStrStart = (LONG_PTR)candlist + candlist->dwOffset[pageStart];
+				LONG_PTR pStrEnd = (LONG_PTR)candlist + (pageEnd < candCount ? candlist->dwOffset[pageEnd] : size);
 
 				auto len = pStrEnd - pStrStart;
 				candStr = new byte[len];
