@@ -19,7 +19,7 @@ namespace IngameIME {
 		COMPEXTPROC onGetCompExt = NULL;
 
 		virtual void Initialize(HWND) = 0;
-		virtual LONG Uninitialize() = 0;
+		virtual LONG_PTR Uninitialize() = 0;
 		virtual void setState(BOOL) = 0;
 		virtual BOOL State() = 0;
 	};

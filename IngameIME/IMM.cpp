@@ -16,7 +16,7 @@ namespace IngameIME {
 			return getInstance()->m_fhandleWndMsg(hwnd, msg, wparam, lparam);
 		}
 
-		void handleComposition(LONG compFlag, LONG genrealFlag)
+		void handleComposition(WPARAM compFlag, LPARAM genrealFlag)
 		{
 			if (((GCS_COMPSTR | GCS_COMPATTR | GCS_COMPCLAUSE | GCS_COMPREADATTR | GCS_COMPREADCLAUSE | GCS_COMPREADSTR) & compFlag) && (m_fullscreen || m_handleCompStr))//Comp String/Sel Changed
 			{
@@ -185,13 +185,13 @@ namespace IngameIME {
 			m_initialized = TRUE;
 		}
 
-		LONG Uninitialize()
+		LONG_PTR Uninitialize()
 		{
 			if (m_initialized) {
 				setState(FALSE);
 				ImmDestroyContext(m_context);
 				m_initialized = FALSE;
-				return SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG)m_prevWndProc);
+				return SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)m_prevWndProc);
 			}
 			return NULL;
 		}
