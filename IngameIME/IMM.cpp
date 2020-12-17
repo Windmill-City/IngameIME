@@ -12,7 +12,7 @@ namespace IngameIME {
 		HIMC m_context = NULL;
 		BOOL m_enabled = FALSE;
 
-		static LRESULT handleWndMsg_CStyle(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+		static LRESULT CALLBACK handleWndMsg_CStyle(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 			return getInstance()->m_fhandleWndMsg(hwnd, msg, wparam, lparam);
 		}
 
@@ -180,7 +180,7 @@ namespace IngameIME {
 			m_hWnd = hWnd;
 			m_context = ImmGetContext(hWnd);
 			if (!m_context) m_context = ImmCreateContext();
-			m_prevWndProc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG)handleWndMsg_CStyle);
+			m_prevWndProc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)handleWndMsg_CStyle);
 			setState(m_enabled);
 			m_initialized = TRUE;
 		}
