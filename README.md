@@ -4,6 +4,7 @@ Enable IME in FullScreen games
 ![Change IME State](https://github.com/Windmill-City/IngameIME/blob/master/Docs/IMEState.gif)
 ![Handle Composition String](https://github.com/Windmill-City/IngameIME/blob/master/Docs/CompStr.gif)
 ![FullScreen Mode](https://github.com/Windmill-City/IngameIME/blob/master/Docs/FullSC.gif)
+![Alpha Mode](https://github.com/Windmill-City/IngameIME/blob/master/Docs/AlphaMode.gif)
 # How to use
 Get an api instance first
 ```c++
@@ -38,12 +39,18 @@ void CALLBACK onComposition(PWCHAR pstr, BOOL state, INT caret) {
 void CALLBACK onGetCompExt(PRECT prect) {
     textBox->GetCompExt(prect);//Pos the CandidateList window, should return a bounding box of the composition string
 }
+
+void CALLBACK onAlphaMode(BOOL isAlphaMode) {
+	//notify if ime in Alphanumeric input mode
+	InvalidateRect(hWnd, NULL, NULL);
+}
 ```
 Register in the api
 ```c++
    api->onCandidateList = onCandidateList;
    api->onComposition = onComposition;
    api->onGetCompExt = onGetCompExt;
+   api->onAlphaMode = onAlphaMode;
 ```
 Then init by passing a HWND ptr
 ```c++

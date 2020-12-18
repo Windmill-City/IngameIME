@@ -110,8 +110,6 @@ namespace IngameIME {
 				if (wparam && State())//wParam == 1 means window active otherwise not
 					ImmAssociateContext(hwnd, m_context);
 
-				ImmSetOpenStatus(m_context, m_enabled);
-
 				if (m_fullscreen)
 				{
 					lparam &= ~ISC_SHOWUICANDIDATEWINDOW;
@@ -145,20 +143,25 @@ namespace IngameIME {
 				goto Handled;
 
 			case WM_IME_NOTIFY:
-				if (!m_fullscreen) break;
 				switch (wparam)
 				{
 				case IMN_CHANGECANDIDATE:
+					if (!m_fullscreen) break;
 					handleCandlist();
-					break;
+					goto Handled;
 				case IMN_OPENCANDIDATE:
 				case IMN_CLOSECANDIDATE:
+					if (!m_fullscreen) break;
 					if (onCandidateList) onCandidateList(NULL, NULL, 0);
-					break;
+					goto Handled;
+				case IMN_SETCONVERSIONMODE:
+					DWORD dwConversion;
+					ImmGetConversionStatus(m_context, &dwConversion, NULL);
+					m_alphaMode = !(dwConversion & IME_CMODE_NATIVE);
+					if (onAlphaMode) onAlphaMode(m_alphaMode);
 				default:
 					break;
 				}
-				goto Handled;
 
 			default:
 				break;

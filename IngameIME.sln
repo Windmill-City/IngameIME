@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{EFE0BF71-B353-4057-A884-326DB56860C6}"
 	ProjectSection(SolutionItems) = preProject
+		Docs\AlphaMode.gif = Docs\AlphaMode.gif
 		Docs\CompStr.gif = Docs\CompStr.gif
 		Docs\FullSC.gif = Docs\FullSC.gif
 		Docs\IMEState.gif = Docs\IMEState.gif

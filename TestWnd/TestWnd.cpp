@@ -12,6 +12,7 @@
 #define MAX_LOADSTRING 100
 
 // 全局变量:
+HWND hWnd;
 HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
@@ -119,6 +120,11 @@ void CALLBACK onGetCompExt(PRECT prect) {
 	textBox->GetCompExt(prect);//Pos the CandidateList window, should return a bounding box of the composition string
 }
 
+void CALLBACK onAlphaMode(BOOL isAlphaMode) {
+	//notify if ime in Alphanumeric input mode
+	InvalidateRect(hWnd, NULL, NULL);
+}
+
 //
 //   函数: InitInstance(HINSTANCE, int)
 //
@@ -137,7 +143,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	hInst = hInstance; // 将实例句柄存储在全局变量中
 
-	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+	hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
 	if (!hWnd)
@@ -148,6 +154,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	api->onCandidateList = onCandidateList;
 	api->onComposition = onComposition;
 	api->onGetCompExt = onGetCompExt;
+	api->onAlphaMode = onAlphaMode;
 	api->Initialize(hWnd);
 	textBox = new TextBox(hWnd);
 
@@ -232,6 +239,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		FullScreen += BOOLSTR(api->m_fullscreen);
 		std::wstring HandleCompStr = L"HandleCompStr:";
 		HandleCompStr += BOOLSTR(api->m_handleCompStr);
+		std::wstring AlphaMode = L"AlphaMode:";
+		AlphaMode += BOOLSTR(api->m_alphaMode);
 
 		using namespace Gdiplus;
 		Gdiplus::Font fontText(L"Microsoft Yahei", 12);
@@ -242,6 +251,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		DrawStr(IMEState);
 		DrawStr(FullScreen);
 		DrawStr(HandleCompStr);
+		DrawStr(AlphaMode);
 		EndPaint(hWnd, &ps);
 	}
 	break;
