@@ -62,30 +62,35 @@ namespace IngameIME {
 		void handleCandlist()
 		{
 			size_t size = ImmGetCandidateList(m_context, 0, NULL, 0);
-			LPCANDIDATELIST candlist = (LPCANDIDATELIST)new byte[size];
-			size = ImmGetCandidateList(m_context, 0, candlist, size);
 
-			DWORD pageSize = candlist->dwPageSize;
-
+			DWORD pageSize = 0;
 			byte* candStr = NULL;
 			DWORD* candStrLen = NULL;
-			if (pageSize > 0) {
-				DWORD candCount = candlist->dwCount;
-				DWORD pageStart = candlist->dwPageStart;
-				DWORD pageEnd = pageStart + pageSize;
 
-				LONG_PTR pStrStart = (LONG_PTR)candlist + candlist->dwOffset[pageStart];
-				LONG_PTR pStrEnd = (LONG_PTR)candlist + (pageEnd < candCount ? candlist->dwOffset[pageEnd] : size);
+			if (size) {
+				LPCANDIDATELIST candlist = (LPCANDIDATELIST)new byte[size];
+				size = ImmGetCandidateList(m_context, 0, candlist, size);
 
-				auto len = pStrEnd - pStrStart;
-				candStr = new byte[len];
-				candStrLen = new DWORD[pageSize];
-				memcpy(candStr, (void*)pStrStart, len);
-				for (size_t i = 0; i < pageSize; i++)
-				{
-					auto offStart = candlist->dwOffset[pageStart + i];
-					auto offEnd = pageStart + i + 1 < candCount ? candlist->dwOffset[pageStart + i + 1] : size;
-					candStrLen[i] = offEnd - offStart;
+				pageSize = candlist->dwPageSize;
+				DWORD candCount = candlist->dwCount;//if greater than one, then contain vaild strings
+
+				if (pageSize > 0 && candCount > 1) {
+					DWORD pageStart = candlist->dwPageStart;
+					DWORD pageEnd = pageStart + pageSize;
+
+					LONG_PTR pStrStart = (LONG_PTR)candlist + candlist->dwOffset[pageStart];
+					LONG_PTR pStrEnd = (LONG_PTR)candlist + (pageEnd < candCount ? candlist->dwOffset[pageEnd] : size);
+
+					auto len = pStrEnd - pStrStart;
+					candStr = new byte[len];
+					candStrLen = new DWORD[pageSize];
+					memcpy(candStr, (void*)pStrStart, len);
+					for (size_t i = 0; i < pageSize; i++)
+					{
+						auto offStart = candlist->dwOffset[pageStart + i];
+						auto offEnd = pageStart + i + 1 < candCount ? candlist->dwOffset[pageStart + i + 1] : size;
+						candStrLen[i] = offEnd - offStart;
+					}
 				}
 			}
 			if (onCandidateList) onCandidateList(candStr, candStrLen, pageSize);
@@ -121,7 +126,7 @@ namespace IngameIME {
 
 			case WM_IME_COMPOSITION:
 				handleComposition(wparam, lparam);
-				if (!m_fullscreen) posCandWnd();
+				if (!m_fullscreen) posCandWnd(); else handleCandlist();//partly commit will missing a IMN_CHANGECANDIDATE msg, so we fetch here
 				if (!m_handleCompStr && !m_fullscreen) break;
 				goto Handled;
 
