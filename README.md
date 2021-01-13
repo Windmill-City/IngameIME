@@ -12,15 +12,9 @@ IngameIME::BaseIME* api = IngameIME::IMM::getInstance();
 ```
 Set up callbacks
 ```c++
-void CALLBACK onCandidateList(byte* candStr, DWORD* candStrLen, size_t size) {
-    textBox->Count = size;
-    textBox->Candidates.reset(new std::wstring[size]);
-    for (size_t i = 0; i < size; i++)
-    {
-        auto len = candStrLen[i];
-        textBox->Candidates[i] = std::wstring((PWCH)candStr, len / sizeof(WCHAR));
-        candStr += len;
-    }
+void CALLBACK onCandidateList(std::wstring* candStr ,size_t size) {
+	textBox->Count = size;
+	textBox->Candidates.reset(candStr);
 }
 
 void CALLBACK onComposition(PWCHAR pstr, BOOL state, INT caret) {

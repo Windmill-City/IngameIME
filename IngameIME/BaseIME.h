@@ -3,7 +3,7 @@
 #include <xstring>
 
 namespace IngameIME {
-	typedef void (CALLBACK* CANDPROC)(byte*, DWORD*, size_t);
+	typedef void (CALLBACK* CANDPROC)(std::wstring*, size_t);
 	typedef void (CALLBACK* COMPPROC)(PWCHAR, BOOL, INT);//BOOL->TRUE = START/UPDATE FALSE = END/COMMIT,INT->Caret Pos
 	typedef void (CALLBACK* COMPEXTPROC)(PRECT);//Composition's bounding box, use to pos candidate window by ime
 	typedef void (CALLBACK* ALPHAMODEPROC)(BOOL);//isAlphaMode, indicate if in Alphanumeric input mode

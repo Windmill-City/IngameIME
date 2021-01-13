@@ -91,15 +91,9 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	return RegisterClassExW(&wcex);
 }
 
-void CALLBACK onCandidateList(byte* candStr, DWORD* candStrLen, size_t size) {
+void CALLBACK onCandidateList(std::wstring* candStr ,size_t size) {
 	textBox->Count = size;
-	textBox->Candidates.reset(new std::wstring[size]);
-	for (size_t i = 0; i < size; i++)
-	{
-		auto len = candStrLen[i];
-		textBox->Candidates[i] = std::wstring((PWCH)candStr, len / sizeof(WCHAR));
-		candStr += len;
-	}
+	textBox->Candidates.reset(candStr);
 }
 
 void CALLBACK onComposition(PWCHAR pstr, BOOL state, INT caret) {

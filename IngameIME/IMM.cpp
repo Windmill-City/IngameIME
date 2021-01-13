@@ -64,8 +64,8 @@ namespace IngameIME {
 			size_t size = ImmGetCandidateList(m_context, 0, NULL, 0);
 
 			DWORD pageSize = 0;
-			byte* candStr = NULL;
-			DWORD* candStrLen = NULL;
+			WCHAR* candStr = NULL;
+			std::wstring* cand = NULL;
 
 			if (size) {
 				LPCANDIDATELIST candlist = (LPCANDIDATELIST)new byte[size];
@@ -78,22 +78,22 @@ namespace IngameIME {
 					DWORD pageStart = candlist->dwPageStart;
 					DWORD pageEnd = pageStart + pageSize;
 
-					LONG_PTR pStrStart = (LONG_PTR)candlist + candlist->dwOffset[pageStart];
-					LONG_PTR pStrEnd = (LONG_PTR)candlist + (pageEnd < candCount ? candlist->dwOffset[pageEnd] : size);
+					cand = new std::wstring[pageSize];
 
-					auto len = pStrEnd - pStrStart;
-					candStr = new byte[len];
-					candStrLen = new DWORD[pageSize];
-					memcpy(candStr, (void*)pStrStart, len);
 					for (size_t i = 0; i < pageSize; i++)
 					{
-						auto offStart = candlist->dwOffset[pageStart + i];
-						auto offEnd = pageStart + i + 1 < candCount ? candlist->dwOffset[pageStart + i + 1] : size;
-						candStrLen[i] = offEnd - offStart;
+						LONG_PTR pStrStart = (LONG_PTR)candlist + candlist->dwOffset[i];
+						LONG_PTR pStrEnd = (LONG_PTR)candlist + (i + 1 < candCount ? candlist->dwOffset[i + 1] : size);
+						auto len = pStrEnd - pStrStart;
+
+						candStr = (WCHAR*)new byte[len];
+						memcpy(candStr, (void*)pStrStart, len);
+
+						cand[i] = candStr;
 					}
 				}
 			}
-			if (onCandidateList) onCandidateList(candStr, candStrLen, pageSize);
+			if (onCandidateList) onCandidateList(cand, pageSize);
 		}
 
 		LRESULT handleWndMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -139,7 +139,7 @@ namespace IngameIME {
 				//Clear CompStr
 				if (onComposition) onComposition(NULL, FALSE, 0);
 				//Clear candidates
-				if (onCandidateList) onCandidateList(NULL, NULL, 0);
+				if (onCandidateList) onCandidateList(NULL, NULL);
 				//if we handle and draw the comp text
 				//we dont pass this msg to the next
 				goto Handled;
@@ -157,7 +157,7 @@ namespace IngameIME {
 				case IMN_OPENCANDIDATE:
 				case IMN_CLOSECANDIDATE:
 					if (!m_fullscreen) break;
-					if (onCandidateList) onCandidateList(NULL, NULL, 0);
+					if (onCandidateList) onCandidateList(NULL, NULL);
 					goto Handled;
 				case IMN_SETCONVERSIONMODE:
 					DWORD dwConversion;
