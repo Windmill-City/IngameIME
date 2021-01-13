@@ -27,7 +27,7 @@ namespace IngameIME {
 				ImmGetCompositionString(m_context, GCS_COMPSTR, buf, size);
 				//CompSel
 				int sel = ImmGetCompositionString(m_context, GCS_CURSORPOS, NULL, 0);
-				if (onComposition) onComposition((PWCH)buf, TRUE, sel);
+				onComposition((PWCH)buf, TRUE, sel);
 			}
 			if (GCS_RESULTSTR & genrealFlag)//Has commited
 			{
@@ -35,14 +35,14 @@ namespace IngameIME {
 				WCHAR* buf = new WCHAR[size / sizeof(WCHAR)];
 				ZeroMemory(buf, size);
 				ImmGetCompositionString(m_context, GCS_RESULTSTR, buf, size);
-				if (onComposition) onComposition((PWCH)buf, FALSE, 0);
+				onComposition((PWCH)buf, FALSE, 0);
 			}
 		}
 
 		void posCandWnd()
 		{
 			RECT* rect = new RECT();
-			if (onGetCompExt) onGetCompExt(rect);
+			onGetCompExt(rect);
 			POINT* InsertPos = new POINT();
 			InsertPos->x = rect->left;
 			InsertPos->y = rect->top;
@@ -93,7 +93,7 @@ namespace IngameIME {
 					}
 				}
 			}
-			if (onCandidateList) onCandidateList(cand, pageSize);
+			onCandidateList(cand, pageSize);
 		}
 
 		LRESULT handleWndMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -132,14 +132,14 @@ namespace IngameIME {
 
 			case WM_IME_STARTCOMPOSITION:
 				if (!m_fullscreen || !m_handleCompStr) break;
-				if (onComposition) onComposition(NULL, TRUE, 0);
+				onComposition(NULL, TRUE, 0);
 				goto Handled;
 			case WM_IME_ENDCOMPOSITION:
 				if (!m_fullscreen || !m_handleCompStr) break;
 				//Clear CompStr
-				if (onComposition) onComposition(NULL, FALSE, 0);
+				onComposition(NULL, FALSE, 0);
 				//Clear candidates
-				if (onCandidateList) onCandidateList(NULL, NULL);
+				onCandidateList(NULL, NULL);
 				//if we handle and draw the comp text
 				//we dont pass this msg to the next
 				goto Handled;
@@ -157,13 +157,13 @@ namespace IngameIME {
 				case IMN_OPENCANDIDATE:
 				case IMN_CLOSECANDIDATE:
 					if (!m_fullscreen) break;
-					if (onCandidateList) onCandidateList(NULL, NULL);
+					onCandidateList(NULL, NULL);
 					goto Handled;
 				case IMN_SETCONVERSIONMODE:
 					DWORD dwConversion;
 					ImmGetConversionStatus(m_context, &dwConversion, NULL);
 					m_alphaMode = !(dwConversion & IME_CMODE_NATIVE);
-					if (onAlphaMode) onAlphaMode(m_alphaMode);
+					onAlphaMode(m_alphaMode);
 				default:
 					break;
 				}
