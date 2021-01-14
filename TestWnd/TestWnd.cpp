@@ -95,8 +95,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 }
 
 void CALLBACK onCandidateList(libtf::CandidateList* list) {
-	textBox->Count = list->PageSize;
-	textBox->Candidates = list->Candidates;
+	textBox->m_lPageCount = list->m_lPageSize;
+	textBox->m_pCandidates = list->m_pCandidates;
 }
 
 void CALLBACK onComposition(libtf::CompositionEventArgs* args) {
@@ -104,15 +104,15 @@ void CALLBACK onComposition(libtf::CompositionEventArgs* args) {
 	{
 	case libtf::CompositionState::StartComposition:
 	case libtf::CompositionState::EndComposition:
-		textBox->m_CompText.clear();
-		textBox->m_CaretPos = 0;
+		textBox->m_wstrComposition.clear();
+		textBox->m_lCaretPos = 0;
 		break;
 	case libtf::CompositionState::Commit:
-		textBox->m_Text += args->m_strCommit;
+		textBox->m_wstrTextContent += args->m_strCommit;
 		break;
 	case libtf::CompositionState::Composing:
-		textBox->m_CompText = args->m_strComposition;
-		textBox->m_CaretPos = args->m_caretPos;
+		textBox->m_wstrComposition = args->m_strComposition;
+		textBox->m_lCaretPos = args->m_lCaretPos;
 		break;
 	default:
 		break;

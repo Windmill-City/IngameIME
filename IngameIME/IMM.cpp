@@ -95,8 +95,8 @@ namespace IngameIME {
 
 						cand[i] = candStr;
 					}
-					m_CandidateList->PageSize = pageSize;
-					m_CandidateList->Candidates.reset(cand);
+					m_CandidateList->m_lPageSize = pageSize;
+					m_CandidateList->m_pCandidates.reset(cand);
 				}
 			}
 			m_sigCandidateList(m_CandidateList);

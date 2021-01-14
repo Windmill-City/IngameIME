@@ -48,12 +48,12 @@ namespace IngameIME {
 
 		void setFullScreen(BOOL fullscreen) override
 		{
-			m_Application->m_pCandidateListHandler->m_handleCandidate = fullscreen;
+			m_Application->m_pCandidateListHandler->m_fhandleCandidate = fullscreen;
 		}
 
 		BOOL FullScreen() override
 		{
-			return m_Application->m_pCandidateListHandler->m_handleCandidate;
+			return m_Application->m_pCandidateListHandler->m_fhandleCandidate;
 		}
 	};
 }
