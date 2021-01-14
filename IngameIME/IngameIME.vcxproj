@@ -172,12 +172,18 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TSF.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="IngameIME.def" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IngameIME.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libtf\libtf\libtf.vcxproj">
+      <Project>{6b9e60b4-51b6-40b0-884a-a5d07081302a}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

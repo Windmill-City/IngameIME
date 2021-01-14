@@ -57,8 +57,9 @@ VOID TextBox::GetCompExt(RECT* rect)
 
 VOID TextBox::onChar(WPARAM wParam, LPARAM lParam)
 {
-	char ch = wParam;
-	if (!iscntrl(ch))
+	WCHAR ch = wParam;
+	if (ch > 255//WCHAR
+		|| !iscntrl(ch))
 		m_Text += ch;
 }
 

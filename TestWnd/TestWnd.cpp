@@ -5,6 +5,7 @@
 #include "TestWnd.h"
 #include "TextBox.h"
 #include "../IngameIME/IMM.cpp"
+#include "../IngameIME/TSF.cpp"
 
 #define BOOLSTR(x) (x == 1 ? L"TRUE" : L"FALSE")
 #define DrawStr(x) graphics.DrawString(x.c_str(), x.size(), &fontText, origin, &format, &BrushFront);origin.Y += yOffset;
@@ -17,7 +18,9 @@ HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 TextBox* textBox;
-IngameIME::BaseIME* api = IngameIME::IMM::getInstance();
+IngameIME::BaseIME* api =
+//IngameIME::IMM::getInstance();
+new IngameIME::TSF();
 
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -91,26 +94,32 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	return RegisterClassExW(&wcex);
 }
 
-void CALLBACK onCandidateList(std::wstring* candStr ,size_t size) {
-	textBox->Count = size;
-	textBox->Candidates.reset(candStr);
+void CALLBACK onCandidateList(libtf::CandidateList* list) {
+	textBox->Count = list->PageSize;
+	textBox->Candidates = list->Candidates;
 }
 
-void CALLBACK onComposition(PWCHAR pstr, BOOL state, INT caret) {
-	if (state && pstr) {//Update Composition String
-		textBox->m_CompText = pstr;
-		textBox->m_CaretPos = caret;
-	}
-	else if (!state && pstr)//Commit String
-		textBox->m_Text += pstr;
-	else//End Composition
+void CALLBACK onComposition(libtf::CompositionEventArgs* args) {
+	switch (args->m_state)
 	{
+	case libtf::CompositionState::StartComposition:
+	case libtf::CompositionState::EndComposition:
 		textBox->m_CompText.clear();
 		textBox->m_CaretPos = 0;
+		break;
+	case libtf::CompositionState::Commit:
+		textBox->m_Text += args->m_strCommit;
+		break;
+	case libtf::CompositionState::Composing:
+		textBox->m_CompText = args->m_strComposition;
+		textBox->m_CaretPos = args->m_caretPos;
+		break;
+	default:
+		break;
 	}
 }
 
-void CALLBACK onGetCompExt(PRECT prect) {
+void CALLBACK onGetTextExt(PRECT prect) {
 	textBox->GetCompExt(prect);//Pos the CandidateList window, should return a bounding box of the composition string
 }
 
@@ -145,10 +154,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-	api->onCandidateList = onCandidateList;
-	api->onComposition = onComposition;
-	api->onGetCompExt = onGetCompExt;
-	api->onAlphaMode = onAlphaMode;
+	api->m_sigAlphaMode = onAlphaMode;
+	api->m_sigComposition = onComposition;
+	api->m_sigCandidateList = onCandidateList;
+	api->m_sigGetTextExt = onGetTextExt;
 	api->Initialize(hWnd);
 	textBox = new TextBox(hWnd);
 
@@ -203,10 +212,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			api->setState(!api->State());
 			break;
 		case IDM_FULLSC:
-			api->m_fullscreen = !api->m_fullscreen;
-			break;
-		case IDM_COMPSTR:
-			api->m_handleCompStr = !api->m_handleCompStr;
+			api->setFullScreen(!api->FullScreen());
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -230,9 +236,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		std::wstring IMEState = L"IMEState:";
 		IMEState += BOOLSTR(api->State());
 		std::wstring FullScreen = L"FullScreen:";
-		FullScreen += BOOLSTR(api->m_fullscreen);
-		std::wstring HandleCompStr = L"HandleCompStr:";
-		HandleCompStr += BOOLSTR(api->m_handleCompStr);
+		FullScreen += BOOLSTR(api->FullScreen());
 		std::wstring AlphaMode = L"AlphaMode:";
 		AlphaMode += BOOLSTR(api->m_alphaMode);
 
@@ -244,7 +248,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		int yOffset = fontText.GetHeight(&graphics);
 		DrawStr(IMEState);
 		DrawStr(FullScreen);
-		DrawStr(HandleCompStr);
 		DrawStr(AlphaMode);
 		EndPaint(hWnd, &ps);
 	}

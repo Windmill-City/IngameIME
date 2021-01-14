@@ -5,12 +5,15 @@
 #include "BaseIME.h"
 
 namespace IngameIME {
-	class __declspec(dllexport) IMM : public BaseIME
+	class IngameIME_API IMM : public BaseIME
 	{
-		std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> m_fhandleWndMsg = std::bind(&IMM::handleWndMsg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-		WNDPROC m_prevWndProc = NULL;
-		HIMC m_context = NULL;
-		BOOL m_enabled = FALSE;
+		std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>	m_fhandleWndMsg = std::bind(&IMM::handleWndMsg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+		WNDPROC												m_prevWndProc = NULL;
+		HIMC												m_context = NULL;
+		BOOL												m_enabled = FALSE;
+		BOOL												m_handleCompStr = TRUE;
+		BOOL												m_fullscreen = FALSE;
+		libtf::CandidateList*								m_CandidateList = new libtf::CandidateList();
 
 		static LRESULT CALLBACK handleWndMsg_CStyle(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 			return getInstance()->m_fhandleWndMsg(hwnd, msg, wparam, lparam);
@@ -27,7 +30,7 @@ namespace IngameIME {
 				ImmGetCompositionString(m_context, GCS_COMPSTR, buf, size);
 				//CompSel
 				int sel = ImmGetCompositionString(m_context, GCS_CURSORPOS, NULL, 0);
-				onComposition((PWCH)buf, TRUE, sel);
+				m_sigComposition(new libtf::CompositionEventArgs(buf, sel));
 			}
 			if (GCS_RESULTSTR & genrealFlag)//Has commited
 			{
@@ -35,14 +38,14 @@ namespace IngameIME {
 				WCHAR* buf = new WCHAR[size / sizeof(WCHAR)];
 				ZeroMemory(buf, size);
 				ImmGetCompositionString(m_context, GCS_RESULTSTR, buf, size);
-				onComposition((PWCH)buf, FALSE, 0);
+				m_sigComposition(new libtf::CompositionEventArgs(buf));
 			}
 		}
 
 		void posCandWnd()
 		{
 			RECT* rect = new RECT();
-			onGetCompExt(rect);
+			m_sigGetTextExt(rect);
 			POINT* InsertPos = new POINT();
 			InsertPos->x = rect->left;
 			InsertPos->y = rect->top;
@@ -61,6 +64,7 @@ namespace IngameIME {
 
 		void handleCandlist()
 		{
+			m_CandidateList->Reset();
 			size_t size = ImmGetCandidateList(m_context, 0, NULL, 0);
 
 			DWORD pageSize = 0;
@@ -91,9 +95,11 @@ namespace IngameIME {
 
 						cand[i] = candStr;
 					}
+					m_CandidateList->PageSize = pageSize;
+					m_CandidateList->Candidates.reset(cand);
 				}
 			}
-			onCandidateList(cand, pageSize);
+			m_sigCandidateList(m_CandidateList);
 		}
 
 		LRESULT handleWndMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -132,14 +138,15 @@ namespace IngameIME {
 
 			case WM_IME_STARTCOMPOSITION:
 				if (!m_fullscreen || !m_handleCompStr) break;
-				onComposition(NULL, TRUE, 0);
+				m_sigComposition(new libtf::CompositionEventArgs(libtf::CompositionState::StartComposition));
 				goto Handled;
 			case WM_IME_ENDCOMPOSITION:
 				if (!m_fullscreen || !m_handleCompStr) break;
 				//Clear CompStr
-				onComposition(NULL, FALSE, 0);
+				m_sigComposition(new libtf::CompositionEventArgs(libtf::CompositionState::StartComposition));
 				//Clear candidates
-				onCandidateList(NULL, NULL);
+				m_CandidateList->Reset();
+				m_sigCandidateList(m_CandidateList);
 				//if we handle and draw the comp text
 				//we dont pass this msg to the next
 				goto Handled;
@@ -157,13 +164,14 @@ namespace IngameIME {
 				case IMN_OPENCANDIDATE:
 				case IMN_CLOSECANDIDATE:
 					if (!m_fullscreen) break;
-					onCandidateList(NULL, NULL);
+					m_CandidateList->Reset();
+					m_sigCandidateList(m_CandidateList);
 					goto Handled;
 				case IMN_SETCONVERSIONMODE:
 					DWORD dwConversion;
 					ImmGetConversionStatus(m_context, &dwConversion, NULL);
 					m_alphaMode = !(dwConversion & IME_CMODE_NATIVE);
-					onAlphaMode(m_alphaMode);
+					m_sigAlphaMode(m_alphaMode);
 				default:
 					break;
 				}
@@ -213,9 +221,23 @@ namespace IngameIME {
 				ImmAssociateContext(m_hWnd, NULL);
 		}
 
-		virtual BOOL State() override
+		BOOL State() override
 		{
 			return m_enabled;
 		}
-	};
+
+		void setFullScreen(BOOL fullscreen) override
+		{
+			m_fullscreen = fullscreen;
+			if (m_enabled) {
+				setState(FALSE);
+				setState(TRUE);
+			}
+		}
+
+		BOOL FullScreen() override
+		{
+			return m_fullscreen;
+		}
+};
 }

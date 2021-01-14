@@ -35,6 +35,9 @@
     <ClCompile Include="IMM.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="TSF.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="IngameIME.def">
