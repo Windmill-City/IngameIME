@@ -12,26 +12,33 @@ IngameIME::BaseIME* api = IngameIME::IMM::getInstance();
 ```
 Set up callbacks
 ```c++
-void CALLBACK onCandidateList(std::wstring* candStr ,size_t size) {
-	textBox->Count = size;
-	textBox->Candidates.reset(candStr);
+void CALLBACK onCandidateList(libtf::CandidateList* list) {
+	textBox->m_lPageCount = list->m_lPageSize;
+	textBox->m_pCandidates = list->m_pCandidates;
 }
 
-void CALLBACK onComposition(PWCHAR pstr, BOOL state, INT caret) {
-    if (state && pstr) {//Update Composition String
-        textBox->m_CompText = pstr;
-        textBox->m_CaretPos = caret;
-    }else if(!state && pstr)//Commit String
-        textBox->m_Text += pstr;
-    else//End Composition
-    {
-        textBox->m_CompText.clear();
-        textBox->m_CaretPos = 0;
-    }
+void CALLBACK onComposition(libtf::CompositionEventArgs* args) {
+	switch (args->m_state)
+	{
+	case libtf::CompositionState::StartComposition:
+	case libtf::CompositionState::EndComposition:
+		textBox->m_wstrComposition.clear();
+		textBox->m_lCaretPos = 0;
+		break;
+	case libtf::CompositionState::Commit:
+		textBox->m_wstrTextContent += args->m_strCommit;
+		break;
+	case libtf::CompositionState::Composing:
+		textBox->m_wstrComposition = args->m_strComposition;
+		textBox->m_lCaretPos = args->m_lCaretPos;
+		break;
+	default:
+		break;
+	}
 }
 
-void CALLBACK onGetCompExt(PRECT prect) {
-    textBox->GetCompExt(prect);//Pos the CandidateList window, should return a bounding box of the composition string
+void CALLBACK onGetTextExt(PRECT prect) {
+	textBox->GetCompExt(prect);//Pos the CandidateList window, should return a bounding box of the composition string
 }
 
 void CALLBACK onAlphaMode(BOOL isAlphaMode) {
@@ -41,10 +48,10 @@ void CALLBACK onAlphaMode(BOOL isAlphaMode) {
 ```
 Register in the api
 ```c++
-   api->onCandidateList = onCandidateList;
-   api->onComposition = onComposition;
-   api->onGetCompExt = onGetCompExt;
-   api->onAlphaMode = onAlphaMode;
+	api->m_sigAlphaMode = onAlphaMode;
+	api->m_sigComposition = onComposition;
+	api->m_sigCandidateList = onCandidateList;
+	api->m_sigGetTextExt = onGetTextExt;
 ```
 Then init by passing a HWND ptr
 ```c++
@@ -53,6 +60,5 @@ Then init by passing a HWND ptr
 Change IME State
 ```c++
 api->setState(TRUE/FALSE);
-api->m_fullscreen = TRUE/FALSE;//Change FullScreen mode need to setState(FALSE) then setState(TRUE) to refresh it
-api->m_handleCompStr = TRUE/FALSE;
+api->setFullScreen(TRUE/FALSE);
 ```
