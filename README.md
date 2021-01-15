@@ -11,6 +11,8 @@ Get an api instance first
 //IMM32
 IngameIME::BaseIME* api = new IngameIME::IMM();
 //TextServiceFramework(Only works in STA Thread)
+//Dont call methods out of your Initialize Thread, or you will result in crash
+//Call Initialize() at your UI Thread
 IngameIME::BaseIME* api = new IngameIME::TSF();
 ```
 Set up callbacks
