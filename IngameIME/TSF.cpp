@@ -20,7 +20,7 @@ namespace IngameIME {
 			switch (msg)
 			{
 			case WM_SETFOCUS:
-				m_Application->Focus(m_Document);
+				m_Document->Focus();
 				break;
 			default:
 				break;
@@ -32,8 +32,8 @@ namespace IngameIME {
 		{
 			m_Application = new libtf::Application();
 			m_Application->Initialize();
-			m_Document = m_Application->CreateDocument(hWnd);
-			m_Application->Focus(m_Document);
+			m_Document = new libtf::Document(m_Application->m_pThreadMgr, m_Application->m_ClientId, hWnd);
+			m_Document->Focus();
 
 			m_Application->m_sigAlphaMode = [this](BOOL alphaMode) { 
 				this->m_alphaMode = alphaMode;
@@ -71,6 +71,7 @@ namespace IngameIME {
 		void setState(BOOL state) override
 		{
 			m_Application->setKeyStrokeFeedState(state);
+			if (!state) m_Document->TerminateComposition();
 		}
 
 		BOOL State() override
