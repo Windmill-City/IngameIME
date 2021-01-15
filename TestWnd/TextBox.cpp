@@ -1,5 +1,6 @@
+#pragma warning(disable: 4267)
+#pragma warning(disable: 4244)
 #include "TextBox.h"
-
 TextBox::TextBox(HWND hWnd)
 {
 	m_rectComp = *new RECT();

@@ -36,8 +36,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
-
-	// TODO: 在此处放置代码。
+	
+	//HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	//if (FAILED(hr))
+	//{
+	//	return FALSE;
+	//}
 
 	// 初始化全局字符串
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -63,7 +67,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 	}
-
+	CoUninitialize();
 	return (int)msg.wParam;
 }
 
