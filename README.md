@@ -8,7 +8,10 @@ Enable IME in FullScreen games
 # How to use
 Get an api instance first
 ```c++
-IngameIME::BaseIME* api = IngameIME::IMM::getInstance();
+//IMM32
+IngameIME::BaseIME* api = new IngameIME::IMM();
+//TextServiceFramework(Only works in STA Thread)
+IngameIME::BaseIME* api = new IngameIME::TSF();
 ```
 Set up callbacks
 ```c++
