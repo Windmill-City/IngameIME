@@ -3,16 +3,37 @@
 #include "../libtf/libtf/Application.hpp"
 #include "../libtf/libtf/Document.hpp"
 namespace IngameIME {
+	std::map<HWND, std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>> g_tf_hWndProcs;
+	LRESULT g_tf_handleWndMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+		auto iter = g_tf_hWndProcs.find(hwnd);
+		if (iter != g_tf_hWndProcs.end()) {
+			return iter->second(hwnd, msg, wparam, lparam);
+		}
+		return NULL;
+	}
 	class IngameIME_API TSF : public BaseIME
 	{
-		CComPtr<libtf::Application> m_Application;
-		CComPtr<libtf::Document>	m_Document;
+		CComPtr<libtf::Application>							m_Application;
+		CComPtr<libtf::Document>							m_Document;
+
+		LRESULT handleWndMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+			switch (msg)
+			{
+			case WM_SETFOCUS:
+				m_Application->Focus(m_Document);
+				break;
+			default:
+				break;
+			}
+			return CallWindowProc(m_prevWndProc, hwnd, msg, wparam, lparam);
+		}
 	public:
 		void Initialize(HWND hWnd) override
 		{
 			m_Application = new libtf::Application();
 			m_Application->Initialize();
-			m_Document = new libtf::Document(m_Application->m_pThreadMgr, m_Application->m_ClientId, hWnd);
+			m_Document = m_Application->CreateDocument(hWnd);
+			m_Application->Focus(m_Document);
 
 			m_Application->m_sigAlphaMode = [this](BOOL alphaMode) { 
 				this->m_alphaMode = alphaMode;
@@ -27,23 +48,34 @@ namespace IngameIME {
 			m_Application->m_pCandidateListHandler->m_sigCandidateList = [this](libtf::CandidateList* list) {
 				this->m_sigCandidateList(list);
 			};
+
+			setState(FALSE);
+
+			g_tf_hWndProcs[hWnd] = m_fhandleWndMsg;
+			m_prevWndProc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)g_tf_handleWndMsg);
+			m_initialized = TRUE;
 		}
 
 		LONG_PTR Uninitialize() override
 		{
-			m_Document.Release();
-			m_Application.Release();
+			if (m_initialized) {
+				m_Document.Release();
+				m_Application.Release();
+				g_tf_hWndProcs.erase(m_hWnd);
+				m_initialized = FALSE;
+				return SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)m_prevWndProc);
+			}
 			return NULL;
 		}
 
 		void setState(BOOL state) override
 		{
-			m_Document->SetKeyboardState(state);
+			m_Application->setKeyStrokeFeedState(state);
 		}
 
 		BOOL State() override
 		{
-			return m_Document->KeyboardState();
+			return m_Application->KeyStrokeFeedState();
 		}
 
 		void setFullScreen(BOOL fullscreen) override

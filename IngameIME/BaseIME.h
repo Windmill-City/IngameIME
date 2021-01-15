@@ -2,6 +2,7 @@
 #include <functional>
 #include <wtypes.h>
 #include <xstring>
+#include <map>
 #include "../libtf/libtf/CompositionEventArgs.hpp"
 #include "../libtf/libtf/CandidateListHandler.hpp"
 #define IngameIME_API __declspec(dllexport)
@@ -12,6 +13,9 @@ namespace IngameIME {
 	typedef std::function<VOID(BOOL)>								sig_AlphaMode;
 	class IngameIME_API BaseIME
 	{
+	protected:
+		std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>	m_fhandleWndMsg = std::bind(&BaseIME::handleWndMsg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+		WNDPROC												m_prevWndProc = NULL;
 	public:
 		BOOL												m_initialized = FALSE;
 		HWND												m_hWnd = NULL;
@@ -22,6 +26,7 @@ namespace IngameIME {
 		sig_GetTextExt										m_sigGetTextExt = [](RECT* prc) {};
 		sig_AlphaMode										m_sigAlphaMode = [](BOOL) {};
 
+		virtual LRESULT handleWndMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) = 0;
 		virtual void Initialize(HWND) = 0;
 		virtual LONG_PTR Uninitialize() = 0;
 		virtual void setState(BOOL) = 0;

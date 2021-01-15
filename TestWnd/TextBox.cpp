@@ -2,6 +2,9 @@
 
 TextBox::TextBox(HWND hWnd)
 {
+	m_rectComp = *new RECT();
+	m_lCaretPos = 0;
+	m_lPageCount = 0;
 	m_hWnd = hWnd;
 }
 

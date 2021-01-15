@@ -21,10 +21,10 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="BaseIME.h">
+    <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="BaseIME.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,10 +32,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="IMM.cpp">
+    <ClCompile Include="TSF.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TSF.cpp">
+    <ClCompile Include="IMM.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

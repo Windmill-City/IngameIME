@@ -1,23 +1,23 @@
 #include "pch.h"
 #include <Imm.h>
 #pragma comment(lib, "imm32.lib")
-#include <functional>
 #include "BaseIME.h"
-
 namespace IngameIME {
+	std::map<HWND, std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>> g_hWndProcs;
+	LRESULT g_handleWndMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+		auto iter = g_hWndProcs.find(hwnd);
+		if (iter != g_hWndProcs.end()) {
+			return iter->second(hwnd, msg, wparam, lparam);
+		}
+		return NULL;
+	}
 	class IngameIME_API IMM : public BaseIME
 	{
-		std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>	m_fhandleWndMsg = std::bind(&IMM::handleWndMsg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-		WNDPROC												m_prevWndProc = NULL;
 		HIMC												m_context = NULL;
 		BOOL												m_enabled = FALSE;
 		BOOL												m_handleCompStr = TRUE;
 		BOOL												m_fullscreen = FALSE;
 		libtf::CandidateList*								m_CandidateList = new libtf::CandidateList();
-
-		static LRESULT CALLBACK handleWndMsg_CStyle(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
-			return getInstance()->m_fhandleWndMsg(hwnd, msg, wparam, lparam);
-		}
 
 		void handleComposition(WPARAM compFlag, LPARAM genrealFlag)
 		{
@@ -65,7 +65,7 @@ namespace IngameIME {
 		void handleCandlist()
 		{
 			m_CandidateList->Reset();
-			size_t size = ImmGetCandidateList(m_context, 0, NULL, 0);
+			DWORD size = ImmGetCandidateList(m_context, 0, NULL, 0);
 
 			DWORD pageSize = 0;
 			WCHAR* candStr = NULL;
@@ -183,20 +183,14 @@ namespace IngameIME {
 		Handled:
 			return NULL;
 		}
-
-		IMM() {}
 	public:
-		static IMM* getInstance() {
-			static IMM _instance;
-			return &_instance;
-		}
-
 		void Initialize(HWND hWnd)
 		{
 			m_hWnd = hWnd;
 			m_context = ImmGetContext(hWnd);
 			if (!m_context) m_context = ImmCreateContext();
-			m_prevWndProc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)handleWndMsg_CStyle);
+			g_hWndProcs[hWnd] = m_fhandleWndMsg;
+			m_prevWndProc = (WNDPROC)SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)g_handleWndMsg);
 			setState(m_enabled);
 			m_initialized = TRUE;
 		}
@@ -206,6 +200,7 @@ namespace IngameIME {
 			if (m_initialized) {
 				setState(FALSE);
 				ImmDestroyContext(m_context);
+				g_hWndProcs.erase(m_hWnd);
 				m_initialized = FALSE;
 				return SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)m_prevWndProc);
 			}

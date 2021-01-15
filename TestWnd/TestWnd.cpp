@@ -1,11 +1,12 @@
 ﻿// TestWnd.cpp : 定义应用程序的入口点。
 //
-#include "../IngameIME/BaseIME.h"
+#include "../IngameIME/IMM.cpp"
+#include "../IngameIME/TSF.cpp"
 #include "framework.h"
 #include "TestWnd.h"
 #include "TextBox.h"
-#include "../IngameIME/IMM.cpp"
-#include "../IngameIME/TSF.cpp"
+#pragma warning(disable: 4267)
+#pragma warning(disable: 4244)
 
 #define BOOLSTR(x) (x == 1 ? L"TRUE" : L"FALSE")
 #define DrawStr(x) graphics.DrawString(x.c_str(), x.size(), &fontText, origin, &format, &BrushFront);origin.Y += yOffset;
@@ -18,8 +19,8 @@ HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 TextBox* textBox;
-IngameIME::BaseIME* api =
-//IngameIME::IMM::getInstance();
+IngameIME::BaseIME* api = 
+//new IngameIME::IMM();
 new IngameIME::TSF();
 
 // 此代码模块中包含的函数的前向声明:
