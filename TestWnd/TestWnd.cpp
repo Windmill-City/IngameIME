@@ -29,6 +29,40 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+void CALLBACK onCandidateList(libtf::CandidateList* list) {
+	textBox->m_lPageCount = list->m_lPageSize;
+	textBox->m_pCandidates = list->m_pCandidates;
+}
+
+void CALLBACK onComposition(libtf::CompositionEventArgs* args) {
+	switch (args->m_state)
+	{
+	case libtf::CompositionState::StartComposition:
+	case libtf::CompositionState::EndComposition:
+		textBox->m_wstrComposition.clear();
+		textBox->m_lCaretPos = 0;
+		break;
+	case libtf::CompositionState::Commit:
+		textBox->m_wstrTextContent += args->m_strCommit;
+		break;
+	case libtf::CompositionState::Composing:
+		textBox->m_wstrComposition = args->m_strComposition;
+		textBox->m_lCaretPos = args->m_lCaretPos;
+		break;
+	default:
+		break;
+	}
+}
+
+void CALLBACK onGetTextExt(PRECT prect) {
+	textBox->GetCompExt(prect);//Pos the CandidateList window, should return a bounding box of the composition string
+}
+
+void CALLBACK onAlphaMode(BOOL isAlphaMode) {
+	//notify if ime in Alphanumeric input mode
+	InvalidateRect(hWnd, NULL, NULL);
+}
+
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPWSTR    lpCmdLine,
@@ -37,11 +71,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 	
-	//HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-	//if (FAILED(hr))
-	//{
-	//	return FALSE;
-	//}
+	//Must on STA for TSF
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+	if (FAILED(hr))
+	{
+		return FALSE;
+	}
+	//Reg callbacks
+	api->m_sigAlphaMode = onAlphaMode;
+	api->m_sigComposition = onComposition;
+	api->m_sigCandidateList = onCandidateList;
+	api->m_sigGetTextExt = onGetTextExt;
 
 	// 初始化全局字符串
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -99,40 +139,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	return RegisterClassExW(&wcex);
 }
 
-void CALLBACK onCandidateList(libtf::CandidateList* list) {
-	textBox->m_lPageCount = list->m_lPageSize;
-	textBox->m_pCandidates = list->m_pCandidates;
-}
-
-void CALLBACK onComposition(libtf::CompositionEventArgs* args) {
-	switch (args->m_state)
-	{
-	case libtf::CompositionState::StartComposition:
-	case libtf::CompositionState::EndComposition:
-		textBox->m_wstrComposition.clear();
-		textBox->m_lCaretPos = 0;
-		break;
-	case libtf::CompositionState::Commit:
-		textBox->m_wstrTextContent += args->m_strCommit;
-		break;
-	case libtf::CompositionState::Composing:
-		textBox->m_wstrComposition = args->m_strComposition;
-		textBox->m_lCaretPos = args->m_lCaretPos;
-		break;
-	default:
-		break;
-	}
-}
-
-void CALLBACK onGetTextExt(PRECT prect) {
-	textBox->GetCompExt(prect);//Pos the CandidateList window, should return a bounding box of the composition string
-}
-
-void CALLBACK onAlphaMode(BOOL isAlphaMode) {
-	//notify if ime in Alphanumeric input mode
-	InvalidateRect(hWnd, NULL, NULL);
-}
-
 //
 //   函数: InitInstance(HINSTANCE, int)
 //
@@ -159,10 +165,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-	api->m_sigAlphaMode = onAlphaMode;
-	api->m_sigComposition = onComposition;
-	api->m_sigCandidateList = onCandidateList;
-	api->m_sigGetTextExt = onGetTextExt;
+	//Init here
 	api->Initialize(hWnd);
 	textBox = new TextBox(hWnd);
 

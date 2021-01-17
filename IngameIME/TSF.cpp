@@ -15,6 +15,7 @@ namespace IngameIME {
 	{
 		CComPtr<libtf::Application>							m_Application;
 		CComPtr<libtf::Document>							m_Document;
+		TfClientId											m_ClientId;
 
 		LRESULT handleWndMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 			switch (msg)
@@ -32,7 +33,8 @@ namespace IngameIME {
 		{
 			m_Application = new libtf::Application();
 			m_Application->Initialize();
-			m_Document = new libtf::Document(m_Application->m_pThreadMgr, m_Application->m_ClientId, hWnd);
+			m_Application->Activate(&m_ClientId);
+			m_Document = new libtf::Document(m_Application->m_pThreadMgr, m_ClientId, hWnd);
 			m_Document->Focus();
 
 			m_Application->m_sigAlphaMode = [this](BOOL alphaMode) { 
