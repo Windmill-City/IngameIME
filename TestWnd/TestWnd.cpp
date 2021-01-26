@@ -20,8 +20,8 @@ WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 TextBox* textBox;
 IngameIME::BaseIME* api = 
-//new IngameIME::IMM();
-new IngameIME::TSF();
+new IngameIME::IMM();
+//new IngameIME::TSF();
 
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
