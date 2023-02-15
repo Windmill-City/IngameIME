@@ -1,7 +1,7 @@
 # IngameIME
 Enable IME in FullScreen games
 
-Moved:https://github.com/Windmill-City/IngameIME-Common
+Move:https://github.com/Windmill-City/IngameIME-Common
 # Example
 ![Change IME State](https://github.com/Windmill-City/IngameIME/blob/master/Docs/IMEState.gif)
 ![Handle Composition String](https://github.com/Windmill-City/IngameIME/blob/master/Docs/CompStr.gif)
